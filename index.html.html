@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Friends na Kupal 👥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: white;
+            text-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .friend-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .friend-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 
+                        0 0 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .friend-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .friend-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .friend-card:hover .friend-avatar {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .friend-name {
+            font-size: 1.8em;
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .friend-role {
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .friend-description {
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.85);
+            text-align: center;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 15px;
+        }
+
+        .friend-traits {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .trait {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .friend-card:hover .trait {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .add-friend-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .friend-card:hover .add-friend-btn {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .memory-gallery {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .memory-photo {
+            width: 100%;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .memory-photo:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .photo-upload-btn {
+            width: 100%;
+            height: 80px;
+            border-radius: 10px;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 2em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-upload-btn:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .friends-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .friend-card {
+                padding: 20px;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideInDown 0.3s ease;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .close:hover {
+            transform: scale(1.2);
+        }
+
+        .modal input, .modal textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1em;
+        }
+
+        .modal input::placeholder, .modal textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .modal button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 30px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .modal button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .modal h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .modal label {
+            color: rgba(255, 255, 255, 0.9);
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ My Friends na Kupal ✨</h1>
+            <p class="subtitle">A collection of amazing people in my life</p>
+        </header>
+
+        <div class="friends-grid" id="friendsGrid">
+            <!-- Friend cards will be added here by JavaScript -->
+        </div>
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button onclick="openAddFriendModal()" style="
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 15px 40px;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                border-radius: 30px;
+                cursor: pointer;
+                font-size: 1.1em;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.05)'" 
+               onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.transform='scale(1)'">
+                ➕ Add Friend
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>Made by Dylan Kupal | 2025</p>
+        </div>
+    </div>
+
+    <!-- Modal for viewing photos -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content" style="max-width: 700px; padding: 20px;">
+            <span class="close" onclick="closePhotoModal()">&times;</span>
+            <h2 style="margin-top: 0;" id="photoModalTitle">Memories</h2>
+            <div id="photoModalContent" style="text-align: center;">
+                <img id="photoModalImage" src="" style="max-width: 100%; border-radius: 15px; max-height: 500px;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
+                <button onclick="previousPhoto()" style="width: auto;">← Previous</button>
+                <button onclick="nextPhoto()" style="width: auto;">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding friends -->
+    <div id="addFriendModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddFriendModal()">&times;</span>
+            <h2>Add a New Friend</h2>
+            <form onsubmit="addFriend(event)">
+                <label for="friendName">Name:</label>
+                <input type="text" id="friendName" placeholder="Enter friend's name" required>
+                
+                <label for="friendRole">Role/Title:</label>
+                <input type="text" id="friendRole" placeholder="e.g., Best Friend, Classmate" required>
+                
+                <label for="friendEmoji">Emoji:</label>
+                <input type="text" id="friendEmoji" placeholder="Enter an emoji" required value="😊" maxlength="2">
+                
+                <label for="friendDescription">Description:</label>
+                <textarea id="friendDescription" placeholder="Tell us about them..." required></textarea>
+                
+                <label for="friendTraits">Traits (comma-separated):</label>
+                <input type="text" id="friendTraits" placeholder="e.g., Funny, Smart, Kind" required>
+                
+                <label for="friendPhotos">Add Memory Photos:</label>
+                <input type="file" id="friendPhotos" accept="image/*" multiple style="color: rgba(255, 255, 255, 0.9);">
+                
+                <button type="submit">Add Friend</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Default friends
+        const defaultFriends = [
+            {
+                name: "Alex",
+                role: "Best Friend",
+                emoji: "😎",
+                description: "Always makes me laugh with their jokes and has my back no matter what.",
+                traits: ["Funny", "Loyal", "Creative"],
+                photos: []
+            },
+            {
+                name: "Jordan",
+                role: "Study Buddy",
+                emoji: "🧠",
+                description: "The smartest person I know. Always helps me understand complicated stuff.",
+                traits: ["Smart", "Helpful", "Patient"]
+            },
+            {
+                name: "Casey",
+                role: "Adventure Pal",
+                emoji: "🚀",
+                description: "Lives for new experiences and dragging me on spontaneous adventures.",
+                traits: ["Adventurous", "Daring", "Fun"]
+            },
+            {
+                name: "Morgan",
+                role: "Good Listener",
+                emoji: "❤️",
+                description: "Always there when I need to talk. The most caring friend anyone could ask for.",
+                traits: ["Caring", "Understanding", "Kind"]
+            },
+            {
+                name: "Sam",
+                role: "Gym Buddy",
+                emoji: "💪",
+                description: "Motivates me to be healthier and stronger. Super supportive and energetic.",
+                traits: ["Motivated", "Supportive", "Energetic"]
+            },
+            {
+                name: "Riley",
+                role: "Gamer Friend",
+                emoji: "🎮",
+                description: "Best gaming sessions with them. We've completed so many games together!",
+                traits: ["Competitive", "Gaming", "Chill"]
+            }
+        ];
+
+        // Load friends from localStorage or use defaults
+        function loadFriends() {
+            const stored = localStorage.getItem('friends');
+            return stored ? JSON.parse(stored) : defaultFriends;
+        }
+
+        // Save friends to localStorage
+        function saveFriends(friends) {
+            localStorage.setItem('friends', JSON.stringify(friends));
+        }
+
+        // Render friends
+        function renderFriends() {
+            const friends = loadFriends();
+            const grid = document.getElementById('friendsGrid');
+            grid.innerHTML = '';
+
+            friends.forEach((friend, index) => {
+                const card = document.createElement('div');
+                card.className = 'friend-card';
+                
+                // Build memory gallery HTML
+                let memoryGalleryHTML = '';
+                if (friend.photos && friend.photos.length > 0) {
+                    memoryGalleryHTML = '<div class="memory-gallery">';
+                    friend.photos.forEach((photo, photoIndex) => {
+                        memoryGalleryHTML += `<img src="${photo}" class="memory-photo" onclick="openPhotoModal(${index}, ${photoIndex})">`;
+                    });
+                    if (friend.photos.length < 4) {
+                        memoryGalleryHTML += `<button class="photo-upload-btn" onclick="uploadPhoto(${index})" style="cursor: pointer;">+</button>`;
+                    }
+                    memoryGalleryHTML += '</div>';
+                } else {
+                    memoryGalleryHTML = `<div class="memory-gallery"><button class="photo-upload-btn" onclick="uploadPhoto(${index})" style="cursor: pointer;">📸 Add Photo</button></div>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="friend-avatar">${friend.emoji}</div>
+                    <h2 class="friend-name">${friend.name}</h2>
+                    <p class="friend-role">${friend.role}</p>
+                    <p class="friend-description">${friend.description}</p>
+                    <div class="friend-traits">
+                        ${friend.traits.map(trait => `<span class="trait">${trait}</span>`).join('')}
+                    </div>
+                    ${memoryGalleryHTML}
+                    <button class="add-friend-btn" onclick="deleteFriend(${index})" style="margin-top: 15px; background: rgba(255, 100, 100, 0.3); border-color: rgba(255, 100, 100, 0.6);">
+                        ✕
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Add friend
+        function addFriend(event) {
+            event.preventDefault();
+            const friends = loadFriends();
+            
+            // Handle photo uploads
+            const photoFiles = document.getElementById('friendPhotos').files;
+            const photos = [];
+            let photosProcessed = 0;
+            
+            if (photoFiles.length > 0) {
+                Array.from(photoFiles).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photos.push(e.target.result);
+                        photosProcessed++;
+                        if (photosProcessed === photoFiles.length) {
+                            createFriend(photos);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                createFriend([]);
+            }
+            
+            function createFriend(photos) {
+                const newFriend = {
+                    name: document.getElementById('friendName').value,
+                    role: document.getElementById('friendRole').value,
+                    emoji: document.getElementById('friendEmoji').value,
+                    description: document.getElementById('friendDescription').value,
+                    traits: document.getElementById('friendTraits').value.split(',').map(t => t.trim()),
+                    photos: photos
+                };
+
+                friends.push(newFriend);
+                saveFriends(friends);
+                renderFriends();
+                closeAddFriendModal();
+                
+                // Reset form
+                event.target.reset();
+            }
+        }
+
+        // Delete friend
+        function deleteFriend(index) {
+            if (confirm('Are you sure you want to delete this friend?')) {
+                const friends = loadFriends();
+                friends.splice(index, 1);
+                saveFriends(friends);
+                renderFriends();
+            }
+        }
+
+        // Modal functions
+        function openAddFriendModal() {
+            document.getElementById('addFriendModal').style.display = 'block';
+        }
+
+        function closeAddFriendModal() {
+            document.getElementById('addFriendModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('addFriendModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+            const photoModal = document.getElementById('photoModal');
+            if (event.target === photoModal) {
+                photoModal.style.display = 'none';
+            }
+        }
+
+        // Photo modal variables
+        let currentPhotoFriendIndex = 0;
+        let currentPhotoIndex = 0;
+
+        // Open photo modal
+        function openPhotoModal(friendIndex, photoIndex) {
+            currentPhotoFriendIndex = friendIndex;
+            currentPhotoIndex = photoIndex;
+            const friends = loadFriends();
+            const photo = friends[friendIndex].photos[photoIndex];
+            const friendName = friends[friendIndex].name;
+            
+            document.getElementById('photoModalTitle').textContent = `${friendName}'s Memories`;
+            document.getElementById('photoModalImage').src = photo;
+            document.getElementById('photoModal').style.display = 'block';
+        }
+
+        // Close photo modal
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+
+        // Navigate to next photo
+        function nextPhoto() {
+            const friends = loadFriends();
+            const photoCount = friends[currentPhotoFriendIndex].photos.length;
+            currentPhotoIndex = (currentPhotoIndex + 1) % photoCount;
+            const photo = friends[currentPhotoFriendIndex].photos[currentPhotoIndex];
+            document.getElementById('photoModalImage').src = photo;
+        }
+
+        // Navigate to previous photo
+        function previousPhoto() {
+            const friends = loadFriends();
+            const photoCount = friends[currentPhotoFriendIndex].photos.length;
+            currentPhotoIndex = (currentPhotoIndex - 1 + photoCount) % photoCount;
+            const photo = friends[currentPhotoFriendIndex].photos[currentPhotoIndex];
+            document.getElementById('photoModalImage').src = photo;
+        }
+
+        // Upload new photo to friend
+        function uploadPhoto(friendIndex) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.multiple = true;
+            
+            input.onchange = function(e) {
+                const friends = loadFriends();
+                const files = e.target.files;
+                let photosProcessed = 0;
+                
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        if (!friends[friendIndex].photos) {
+                            friends[friendIndex].photos = [];
+                        }
+                        friends[friendIndex].photos.push(event.target.result);
+                        photosProcessed++;
+                        
+                        if (photosProcessed === files.length) {
+                            saveFriends(friends);
+                            renderFriends();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+            
+            input.click();
+        }
+
+        // Initial render
+        renderFriends();
+    </script>
+</body>
+</html>

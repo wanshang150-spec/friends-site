@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Friends 👥</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg,#667eea 0%,#764ba2 25%,#f093fb 50%,#4facfe 75%,#00f2fe 100%);
+            background-size:400% 400%; animation:gradient 15s ease infinite;
+            min-height:100vh; padding:40px 20px; color: #fff;
+        }
+        @keyframes gradient { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+        .container{ max-width:1200px; margin:0 auto; }
+        header{ text-align:center; margin-bottom:60px; animation:slideDown .8s ease; }
+        @keyframes slideDown{ from{opacity:0; transform:translateY(-30px);} to{opacity:1; transform:translateY(0);} }
+        h1{ font-size:3.2em; color:#fff; text-shadow:0 8px 16px rgba(0,0,0,.3); margin-bottom:10px; }
+        .subtitle{ font-size:1.15em; color:rgba(255,255,255,.9); }
+        .friends-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:30px; margin-bottom:50px; }
+        .friend-card{ background:rgba(255,255,255,0.08); backdrop-filter: blur(8px); border-radius:18px; padding:26px; border:1px solid rgba(255,255,255,0.12); transition:all .28s cubic-bezier(.25,.46,.45,.94); position:relative; overflow:hidden; }
+        .friend-card:hover{ transform:translateY(-10px) scale(1.02); box-shadow:0 20px 40px rgba(0,0,0,.22), 0 0 30px rgba(255,107,107,.12); border-color:rgba(255,255,255,.22); }
+        .friend-avatar{ width:96px; height:96px; border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:2.6em; background:linear-gradient(135deg,#667eea,#764ba2); border:3px solid rgba(255,255,255,0.2); box-shadow:0 8px 16px rgba(0,0,0,.22); transition:transform .25s ease; }
+        .friend-card:hover .friend-avatar{ transform:scale(1.08) rotate(8deg); }
+        .friend-name{ font-size:1.6em; text-align:center; margin-bottom:6px; font-weight:700; }
+        .friend-role{ text-align:center; color:rgba(255,255,255,.85); margin-bottom:12px; }
+        .friend-description{ text-align:center; color:rgba(255,255,255,.9); line-height:1.5; margin-bottom:12px; }
+        .friend-traits{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+        .trait{ background:rgba(255,255,255,0.12); padding:6px 12px; border-radius:18px; font-size:.85em; border:1px solid rgba(255,255,255,.08); }
+        .add-friend-btn{ width:48px; height:48px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin:0 auto; background:rgba(255,255,255,.12); border:2px solid rgba(255,255,255,.18); cursor:pointer; font-size:1.3em; }
+        .memory-gallery{ margin-top:14px; display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+        .memory-photo{ width:100%; height:78px; object-fit:cover; border-radius:10px; border:2px solid rgba(255,255,255,.12); cursor:pointer; transition:transform .18s ease,border-color .18s; }
+        .memory-photo:hover{ transform:scale(1.03); border-color:rgba(255,255,255,.28); }
+        .photo-upload-btn{ width:100%; height:78px; border-radius:10px; border:2px dashed rgba(255,255,255,.16); background:rgba(255,255,255,.03); color:rgba(255,255,255,.8); display:flex; align-items:center; justify-content:center; font-size:1.2em; cursor:pointer; }
+        .modal{ display:none; position:fixed; z-index:200; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,.5); backdrop-filter: blur(4px); }
+        .modal-content{ background:linear-gradient(135deg,#667eea,#764ba2); margin:5% auto; padding:28px; border-radius:14px; width:90%; max-width:640px; border:2px solid rgba(255,255,255,.14); box-shadow:0 20px 60px rgba(0,0,0,.3); }
+        .close{ color:white; float:right; font-size:1.6em; font-weight:bold; cursor:pointer; }
+        .modal input,.modal textarea{ width:100%; padding:10px; margin:8px 0; border-radius:8px; border:2px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:white; }
+        .modal label{ color:rgba(255,255,255,.95); display:block; margin-top:8px; font-weight:600; }
+        .modal button{ width:100%; padding:12px; border-radius:10px; background:rgba(255,255,255,.14); color:white; border:2px solid rgba(255,255,255,.2); cursor:pointer; margin-top:12px; }
+        .footer{text-align:center;color:rgba(255,255,255,.95);padding:20px;font-size:.95em}
+        @media(max-width:768px){ h1{ font-size:2.2em } .memory-photo{ height:70px } }
+    </style>
+
+    <!-- Firebase compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ My Friends ✨</h1>
+            <p class="subtitle">A collection of amazing people in my life</p>
+            <p id="firebaseStatus" style="font-size:0.95em; opacity:0.95; margin-top:8px">Initializing...</p>
+        </header>
+
+        <div class="friends-grid" id="friendsGrid"></div>
+
+        <div style="text-align:center;margin-bottom:30px;">
+            <button onclick="openAddFriendModal()" style="padding:14px 32px;border-radius:28px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.18);color:white;cursor:pointer;font-size:1.05em">➕ Add Friend</button>
+        </div>
+
+        <div class="footer"><p>Made by Dylan | 2025</p></div>
+    </div>
+
+    <!-- Photo viewer modal -->
+    <div id="photoModal" class="modal"><div class="modal-content" style="max-width:720px;padding:18px;">
+        <span class="close" onclick="closePhotoModal()">&times;</span>
+        <h2 id="photoModalTitle" style="margin-top:6px;color:white"></h2>
+        <div style="text-align:center;margin-top:12px"><img id="photoModalImage" src="" style="max-width:100%;border-radius:12px;max-height:520px"></div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px"><button onclick="previousPhoto()">← Previous</button><button onclick="nextPhoto()">Next →</button></div>
+    </div></div>
+
+    <!-- Add friend modal -->
+    <div id="addFriendModal" class="modal"><div class="modal-content">
+        <span class="close" onclick="closeAddFriendModal()">&times;</span>
+        <h2 style="color:white;margin-top:6px">Add a New Friend</h2>
+        <form id="addFriendForm" onsubmit="addFriend(event)">
+            <label>Name:</label>
+            <input id="friendName" required>
+            <label>Role/Title:</label>
+            <input id="friendRole" required>
+            <label>Emoji:</label>
+            <input id="friendEmoji" value="😊" maxlength="2" required>
+            <label>Description:</label>
+            <textarea id="friendDescription" required></textarea>
+            <label>Traits (comma-separated):</label>
+            <input id="friendTraits" required>
+            <label>Add Memory Photos:</label>
+            <input id="friendPhotos" type="file" accept="image/*" multiple>
+            <label><input id="friendPrivate" type="checkbox"> Make this friend private</label>
+            <div id="accessCodeRow" style="display:none;margin-top:8px">
+                <label>Access code (required for private entries):</label>
+                <input id="friendAccessCode" type="password" placeholder="Pick a short code">
+            </div>
+            <button type="submit">Add Friend</button>
+        </form>
+    </div></div>
+
+    <script>
+    /* ------------------ Firebase config ------------------
+       Replace the values below with your Firebase web app config
+       from the Firebase console (Project settings → Your apps)
+       Example:
+       const firebaseConfig = {
+         apiKey: "...",
+         authDomain: "your-project.firebaseapp.com",
+         projectId: "your-project-id",
+         storageBucket: "your-project-id.appspot.com",
+         messagingSenderId: "...",
+         appId: "1:...:web:..."
+       }
+    -----------------------------------------------------*/
+        const firebaseConfig = {
+            apiKey: "AIzaSyDq6DC0Q0B7uBduhcvN0kZ6vvuGHTEgNjo",
+            authDomain: "mga-tropa.firebaseapp.com",
+            projectId: "mga-tropa",
+            storageBucket: "mga-tropa.appspot.com",
+            messagingSenderId: "528249569866",
+            appId: "1:528249569866:web:9e615e9df44a4c556e1cb3",
+            measurementId: "G-E07SYVJ9F2"
+        };
+
+    let useFirebase = false;
+    try{
+        if(firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('YOUR_')){
+            firebase.initializeApp(firebaseConfig);
+            var db = firebase.firestore();
+            var storage = firebase.storage();
+            useFirebase = true;
+            console.log('Firebase initialized.');
+            const s = document.getElementById('firebaseStatus'); if(s) s.textContent = 'Connected to Firebase (cloud storage + Firestore)';
+        } else {
+            console.log('Firebase config not set; using localStorage only.');
+            const s = document.getElementById('firebaseStatus'); if(s) s.textContent = 'Using localStorage (no Firebase configured)';
+        }
+    } catch(err){ console.warn('Firebase init error', err); const s = document.getElementById('firebaseStatus'); if(s) s.textContent = 'Firebase init failed — using localStorage'; }
+
+    // SHA-256 helper
+    async function sha256hex(str){ const enc=new TextEncoder(); const data=enc.encode(str); const hash=await crypto.subtle.digest('SHA-256',data); const bytes=Array.from(new Uint8Array(hash)); return bytes.map(b=>b.toString(16).padStart(2,'0')).join(''); }
+
+    // Local storage helpers
+    function loadFriendsLocal(){ const s=localStorage.getItem('friends'); return s?JSON.parse(s):[]; }
+    function saveFriendsLocal(arr){ localStorage.setItem('friends', JSON.stringify(arr)); }
+
+    // Remote helpers
+    async function loadFriendsRemote(){ const out=[]; const snap=await db.collection('friends').orderBy('createdAt','desc').get(); snap.forEach(d=>{ const o=d.data(); o._id=d.id; out.push(o); }); return out; }
+    async function addFriendRemote(friend){ const uploaded=[]; if(friend.photos && friend.photos.length){ for(let i=0;i<friend.photos.length;i++){ const dataUrl=friend.photos[i]; const fn=`photos/${Date.now()}_${Math.random().toString(36).slice(2,9)}.jpg`; const ref=storage.ref().child(fn); await ref.putString(dataUrl,'data_url'); const url=await ref.getDownloadURL(); uploaded.push(url); } }
+        friend.photos = uploaded; friend.createdAt = firebase.firestore.FieldValue.serverTimestamp(); const docRef = await db.collection('friends').add(friend); return docRef.id; }
+    async function addPhotosToFriendRemote(friendId, dataUrls){ const uploaded=[]; for(const dataUrl of dataUrls){ const fn=`photos/${Date.now()}_${Math.random().toString(36).slice(2,9)}.jpg`; const ref=storage.ref().child(fn); await ref.putString(dataUrl,'data_url'); const url=await ref.getDownloadURL(); uploaded.push(url); } await db.collection('friends').doc(friendId).update({ photos: firebase.firestore.FieldValue.arrayUnion(...uploaded) }); return uploaded; }
+
+    // UI helpers and rendering
+    function show(el){ el.style.display='block'; } function hide(el){ el.style.display='none'; }
+    function openAddFriendModal(){ document.getElementById('addFriendModal').style.display='block'; }
+    function closeAddFriendModal(){ document.getElementById('addFriendModal').style.display='none'; }
+    let currentPhotoFriendIndex=0, currentPhotoIndex=0;
+
+    async function loadFriends(){ if(useFirebase){ try{return await loadFriendsRemote(); } catch(e){ console.warn('remote load failed',e); return loadFriendsLocal(); } } else return loadFriendsLocal(); }
+
+    const unlockedMap = {};
+
+    async function renderFriends(){ const friends=await loadFriends(); const grid=document.getElementById('friendsGrid'); grid.innerHTML=''; friends.forEach((friend,index)=>{
+        const card=document.createElement('div'); card.className='friend-card';
+        let memoryHTML='';
+        if(friend.photos && friend.photos.length>0){ memoryHTML+='<div class="memory-gallery">'; friend.photos.slice(0,4).forEach((p,pi)=>{ memoryHTML+=`<img src="${p}" class="memory-photo" onclick="openPhotoModal(${index},${pi})">`; }); if(friend.photos.length<12) memoryHTML+=`<button class="photo-upload-btn" onclick="promptUpload(${index})">+</button>`; memoryHTML+='</div>'; }
+        else memoryHTML=`<div class="memory-gallery"><button class="photo-upload-btn" onclick="promptUpload(${index})">📸 Add Photo</button></div>`;
+
+        const unlocked = unlockedMap[friend._id||friend.name] === true;
+        const traitsHTML = (friend.traits||[]).map(t=>`<span class="trait">${t}</span>`).join('');
+        card.innerHTML = `
+            <div class="friend-avatar">${friend.emoji||'🙂'}</div>
+            <h2 class="friend-name">${friend.name}</h2>
+            <p class="friend-role">${friend.role||''}</p>
+            <p class="friend-description">${(friend.private && !unlocked)?'Private entry — unlock to view details':(friend.description||'')}</p>
+            <div class="friend-traits">${traitsHTML}</div>
+            ${ (friend.private && !unlocked) ? `<div style="text-align:center;margin:12px 0;"><button onclick="unlockFriend('${friend._id||friend.name}')">Unlock to view</button></div>` : memoryHTML }
+            <button class="add-friend-btn" onclick="deleteFriend(${index})" style="margin-top:15px;background:rgba(255,100,100,0.28);border-color:rgba(255,100,100,0.6)">✕</button>
+        `;
+        grid.appendChild(card);
+    }); }
+
+    async function openPhotoModal(friendIndex, photoIndex){ currentPhotoFriendIndex=friendIndex; currentPhotoIndex=photoIndex; await loadAndRenderFriendsForModal(); }
+    async function loadAndRenderFriendsForModal(){ const friends=await loadFriends(); const fr=friends[currentPhotoFriendIndex]; if(!fr||!fr.photos||fr.photos.length===0) return; const photo=fr.photos[currentPhotoIndex]; document.getElementById('photoModalTitle').textContent = `${fr.name}'s Memories`; document.getElementById('photoModalImage').src = photo; document.getElementById('photoModal').style.display='block'; }
+    function closePhotoModal(){ document.getElementById('photoModal').style.display='none'; }
+    function nextPhoto(){ currentPhotoIndex++; loadAndRenderFriendsForModal(); }
+    function previousPhoto(){ currentPhotoIndex--; loadAndRenderFriendsForModal(); }
+
+    async function unlockFriend(friendIdOrName){ const code = prompt('Enter access code to unlock this private entry:'); if(!code) return alert('No code entered.'); const h = await sha256hex(code);
+        if(useFirebase){ try{ const doc = await db.collection('friends').doc(friendIdOrName).get(); if(!doc.exists) return alert('Entry not found.'); const d = doc.data(); if(d.codeHash && d.codeHash === h){ unlockedMap[friendIdOrName]=true; renderFriends(); return alert('Unlocked!'); } else return alert('Wrong code.'); } catch(e){ console.error(e); return alert('Unlock failed.'); } }
+        else { const arr=loadFriendsLocal(); const f = arr.find(x=> (x._id===friendIdOrName) || (x.name===friendIdOrName)); if(!f) return alert('Entry not found.'); if(f.codeHash && f.codeHash===h){ unlockedMap[friendIdOrName]=true; renderFriends(); return alert('Unlocked!'); } else return alert('Wrong code.'); }
+    }
+
+    async function addFriend(event){ event.preventDefault(); const name=document.getElementById('friendName').value.trim(); const role=document.getElementById('friendRole').value.trim(); const emoji=document.getElementById('friendEmoji').value.trim(); const description=document.getElementById('friendDescription').value.trim(); const traits=document.getElementById('friendTraits').value.split(',').map(t=>t.trim()).filter(Boolean); const privateFlag=document.getElementById('friendPrivate').checked; const accessCode=document.getElementById('friendAccessCode').value;
+        const files = document.getElementById('friendPhotos').files; const dataUrls = [];
+        if(files && files.length){ for(const f of files){ const dataUrl = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=err=>rej(err); r.readAsDataURL(f); }); dataUrls.push(dataUrl); } }
+        let friendObj = { name, role, emoji, description, traits, photos: dataUrls, private: privateFlag };
+        if(privateFlag){ if(!accessCode||accessCode.length<1) return alert('Please provide an access code for private entries.'); const hash = await sha256hex(accessCode); friendObj.codeHash = hash; }
+        if(useFirebase){ try{ await addFriendRemote(friendObj); alert('Friend saved to cloud!'); } catch(e){ console.error(e); alert('Failed to save remotely. Saving locally instead.'); const local=loadFriendsLocal(); friendObj._id = Date.now().toString(); local.unshift(friendObj); saveFriendsLocal(local); } } else { const local=loadFriendsLocal(); friendObj._id=Date.now().toString(); local.unshift(friendObj); saveFriendsLocal(local); }
+        document.getElementById('addFriendForm').reset(); closeAddFriendModal(); await renderFriends(); }
+
+    function promptUpload(friendIndex){ const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.multiple=true; inp.onchange=async (e)=>{ const files=e.target.files; const dataUrls=[]; for(const f of files){ const dataUrl = await new Promise(res=>{ const r=new FileReader(); r.onload=ev=>res(ev.target.result); r.readAsDataURL(f); }); dataUrls.push(dataUrl); }
+            (async()=>{ const friends = await loadFriends(); const friend = friends[friendIndex]; if(!friend) return alert('Friend not found.'); if(useFirebase){ try{ await addPhotosToFriendRemote(friend._id, dataUrls); alert('Photos uploaded!'); } catch(err){ console.error(err); alert('Upload failed.'); } } else { const local = loadFriendsLocal(); const found = local[friendIndex]; if(!found.photos) found.photos=[]; found.photos.push(...dataUrls); saveFriendsLocal(local); alert('Photos added locally.'); } renderFriends(); })(); };
+        inp.click(); }
+
+    async function deleteFriend(index){ if(!confirm('Are you sure?')) return; if(useFirebase){ const friends = await loadFriends(); const f = friends[index]; if(!f||!f._id) return alert('Cannot delete.'); try{ await db.collection('friends').doc(f._id).delete(); alert('Deleted.'); renderFriends(); } catch(e){ console.error(e); alert('Delete failed.'); } } else { const arr=loadFriendsLocal(); arr.splice(index,1); saveFriendsLocal(arr); renderFriends(); } }
+
+    document.getElementById('friendPrivate').addEventListener('change', (ev)=>{ document.getElementById('accessCodeRow').style.display = ev.target.checked ? 'block':'none'; });
+
+    window.onclick = function(e){ const addModal=document.getElementById('addFriendModal'); const photoModal=document.getElementById('photoModal'); if(e.target===addModal) addModal.style.display='none'; if(e.target===photoModal) photoModal.style.display='none'; }
+
+    // initial render
+    renderFriends();
+    </script>
+</body>
+</html>
